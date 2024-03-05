@@ -1,16 +1,19 @@
 "use client";
-import { Button, Callout, Text, TextField } from "@radix-ui/themes";
+
+import { Button, Callout, TextField } from "@radix-ui/themes";
 import { useForm, Controller } from "react-hook-form";
 import "easymde/dist/easymde.min.css";
-import SimpleMde from "react-simplemde-editor";
-import axios from "axios";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createIssueSchema } from "@/app/validationSchemas";
 import { z } from "zod";
+import axios from "axios";
+import dynamic from "next/dynamic";
 import ErrorMessage from "@/app/components/ErrorMessage";
 import Spinner from "../../components/Spinner";
+import { useRouter } from "next/navigation";
+
+const SimpleMde = dynamic(() => import("react-simplemde-editor"), { ssr: false });
 
 type IssueForm = z.infer<typeof createIssueSchema>;
 
@@ -26,6 +29,17 @@ const NewIssuePage = () => {
   });
   const [error, setError] = useState("");
   const [isSubmitting, setSubmitting] = useState(false);
+  const onSubmit = handleSubmit(async (data) => {
+    try {
+      setSubmitting(true);
+      await axios.post("/api/issues", data);
+      router.push("/issues");
+    } catch (error) {
+      setSubmitting(false);
+      setError("An unexpected error occurred.");
+    }
+  });
+
   return (
     <div className="max-w-xl ">
       {error && (
@@ -33,19 +47,7 @@ const NewIssuePage = () => {
           {<Callout.Text> {error} </Callout.Text>}{" "}
         </Callout.Root>
       )}
-      <form
-        className="space-y-3"
-        onSubmit={handleSubmit(async (data) => {
-          try {
-            setSubmitting(true);
-            await axios.post("/api/issues", data);
-            router.push("/issues");
-          } catch (error) {
-            setSubmitting(false);
-            setError("An unexpected error occurred.");
-          }
-        })}
-      >
+      <form className="space-y-3" onSubmit={onSubmit}>
         <TextField.Root>
           <TextField.Input placeholder="Title" {...register("title")} />
         </TextField.Root>
