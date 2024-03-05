@@ -1,7 +1,5 @@
 "use client";
-
 import { Button, Callout, TextField } from "@radix-ui/themes";
-// import dynamic from "next/dynamic";
 import { useForm, Controller } from "react-hook-form";
 import "easymde/dist/easymde.min.css";
 import SimpleMde from "react-simplemde-editor";
@@ -12,8 +10,6 @@ interface IssueForm {
   title: string;
   description: string;
 }
-
-// const SimpleMDE = dynamic(() => import("react-simplemde-editor"), { ssr: false });
 
 const NewIssuePage = () => {
   const router = useRouter();
